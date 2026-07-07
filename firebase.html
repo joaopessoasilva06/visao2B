@@ -2,8 +2,8 @@
 <html lang="PT-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Controle Xbox Arduino</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Controle Remoto Arduino</title>
     
     <link rel="stylesheet" href="firebase.css">
     
@@ -43,17 +43,28 @@
     </script>
 </head>
 <body>
-    <div class="control-panel">
-        <fieldset>
-            <legend>CONTROLE DE MOVIMENTO</legend>
-            <div class="xbox-buttons">
-                <button class="xbox-btn-y" onclick="movimentar('Y')">Y</button>
-                <button class="xbox-btn-x" onclick="movimentar('X')">X</button>
-                <button class="xbox-btn-o" onclick="movimentar('O')">O</button>
-                <button class="xbox-btn-a" onclick="movimentar('A')">A</button>
+    <div class="gamepad-container">
+        <div class="left-side">
+            <div class="dpad-buttons">
+                <button class="dpad-btn dpad-up" onclick="movimentar('W')">▲</button>
+                <button class="dpad-btn dpad-left" onclick="movimentar('A_SETA')">◀</button>
+                <button class="dpad-btn dpad-right" onclick="movimentar('D')">▶</button>
+                <button class="dpad-btn dpad-down" onclick="movimentar('S')">▼</button>
             </div>
-        </fieldset>
-        <p id="mensagem"></p>
+        </div>
+
+        <div class="center-side">
+            <p id="mensagem"></p>
+        </div>
+
+        <div class="right-side">
+            <div class="xbox-buttons">
+                <button class="xbox-btn xbox-btn-y" onclick="movimentar('Y')">Y</button>
+                <button class="xbox-btn xbox-btn-x" onclick="movimentar('X')">X</button>
+                <button class="xbox-btn xbox-btn-o" onclick="movimentar('O')">O</button>
+                <button class="xbox-btn xbox-btn-a" onclick="movimentar('A')">A</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>
