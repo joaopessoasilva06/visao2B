@@ -3,100 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle Arduino</title>
+    
     <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        // Importamos 'getFirestore', 'doc' e 'setDoc' para atualizar um documento específico
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-          apiKey: "AIzaSyDHH7SFX-Ao6a1nE8li_IYyp6BjpFrDx10",
-          authDomain: "endereco3aelias.firebaseapp.com",
-          projectId: "endereco3aelias",
-          storageBucket: "endereco3aelias.firebasestorage.app",
-          messagingSenderId: "965511939666",
-          appId: "1:965511939666:web:d1a48466e9ff7ca4a0818b"
-    };
+        // Suas configurações do Firebase
+        const firebaseConfig = {
+              apiKey: "AIzaSyDHH7SFX-Ao6a1nE8li_IYyp6BjpFrDx10",
+              authDomain: "endereco3aelias.firebaseapp.com",
+              projectId: "endereco3aelias",
+              storageBucket: "endereco3aelias.firebasestorage.app",
+              messagingSenderId: "965511939666",
+              appId: "1:965511939666:web:d1a48466e9ff7ca4a0818b"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    const form = document.getElementById("formulario");
-    const mensagem = document.getElementById("mensagem");
+        // Função para atualizar o comando
+        async function movimentar(direcao) {
+            const mensagem = document.getElementById("mensagem");
+            
+            try {
+                // doc(db, "coleção", "ID_do_documento")
+                // Criamos/Apontamos para um documento chamado "atual" dentro da coleção "movimentos"
+                const docRef = doc(db, "movimentos", "atual");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+                // setDoc substitui os dados desse documento específico na mesma hora
+                await setDoc(docRef, {
+                    comando: direcao,
+                    horario: serverTimestamp() // Opcional, bom para o Arduino saber quando mudou
+                });
 
-      const cep = document.getElementById("cep").value;
-      const endereco = document.getElementById("endereco").value;
-      const complemento = document.getElementById("complemento").value;
-      const bairro = document.getElementById("bairro").value;
-      const cidade = document.getElementById("cidade").value;
-      const telefone1 = document.getElementById("telefone1").value;
-      const complemento1 = document.getElementById("complemento1").value;
-      const telefone2 = document.getElementById("telefone2").value;
-      const complemento2 = document.getElementById("complemento2").value;
-      const celular = document.getElementById("celular").value;
-      const complemento3 = document.getElementById("complemento3").value;
-      const fax = document.getElementById("complemento2").value;
-      const complemento4 = document.getElementById("complemento4").value;
+                mensagem.textContent = `Movimento alterado para: ${direcao}`;
+                mensagem.style.color = "green";
+            } catch (error) {
+                mensagem.textContent = "Erro ao atualizar: " + error.message;
+                mensagem.style.color = "red";
+            }
+        }
 
-      try {
-        await addDoc(collection(db, "endereco"), {
-          cep,
-          endereco,
-          complemento,
-          bairro,
-          cidade,
-          telefone1,
-          complemento1,
-          telefone2,
-          complemento2,
-          celular,
-          complemento3,
-          fax,
-          complemento4
-        });
-
-        mensagem.textContent = "Usuário salvo com sucesso.";
-        mensagem.style.color = "green";
-        form.reset();
-      } catch (error) {
-        mensagem.textContent = "Erro ao salvar: " + error.message;
-        mensagem.style.color = "red";
-      }
-    });
-  </script>
+        // Torna a função visível para o HTML "onclick"
+        window.movimentar = movimentar;
+    </script>
 </head>
 <body>
     <fieldset>
-        <legend>endereço</legend>
-        <form id="formulario">
-        <p>CEP<input id="cep" type="text"></p>
-
-        <p>endereço<input id="endereco" type="text"></p>
-
-        <p>complemento<input id="complemento" type="text">
-        bairro<input id="bairro" type="text"></p>
-
-        <p>cidade<input id="cidade" type="text"></p>
-        
-        <p>telefone 1<input id="telefone1" type="text">
-        complemento 1<input id="complemento1" type="text"></p>
-
-        <p>telefone 2<input id="telefone2" type="text">
-        complemento 2<input id="complemento2" type="text"></p>  
-
-        <p>celular<input id="celular" type="text">
-        complemento 3<input id="complemento3" type="text"></p>
-
-        <p>Fax<input id="fax" class="" type="text">
-        complemento 4<input id="complemento4" type="text"></p>
-        <br><br>
-        <input type="submit" value="Cadastrar">
-        </form>
+        <legend>CONTROLE DE MOVIMENTO</legend>
+        <button onclick="movimentar('Y')">PARA FRENTE (Y)</button>
+        <button onclick="movimentar('X')">PARA ESQUERDA (X)</button>
+        <button onclick="movimentar('O')">PARA DIREITA (O)</button>
+        <button onclick="movimentar('A')">PARA TRAS (A)</button>
     </fieldset>
+
+    <p id="mensagem"></p>
 </body>
 </html>
