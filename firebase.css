@@ -1,5 +1,3 @@
-/* style.css */
-
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     display: flex; 
@@ -33,7 +31,7 @@ legend {
     letter-spacing: 1px;
 }
 
-/* Área dos botões - Forçando um quadrado perfeito de 210px por 210px */
+/* Área dos botões - Grid em formato de Cruz */
 .xbox-buttons { 
     display: grid; 
     grid-template-columns: repeat(3, 65px);
@@ -42,7 +40,7 @@ legend {
         ". y ." 
         "x . o" 
         ". a ."; 
-    gap: 10px; /* Espaçamento idêntico entre todos os eixos */
+    gap: 10px; 
     justify-content: center; 
     align-content: center;
     margin: 0 auto;
@@ -67,7 +65,7 @@ legend {
     display: flex; 
     align-items: center; 
     justify-content: center; 
-    padding: 0; /* Remove margens internas que desalinhavam o texto */
+    padding: 0; 
     box-sizing: border-box;
 }
 
@@ -77,14 +75,14 @@ legend {
     box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.4); 
 }
 
-/* Cores oficiais do layout ABXY do Xbox */
-.xbox-btn-y { grid-area: y; background-color: #e6b800; } /* Y - Amarelo */
-.xbox-btn-o { grid-area: o; background-color: #cc002c; } /* B/O - Vermelho */
-.xbox-btn-x { grid-area: x; background-color: #0077e6; } /* X - Azul */
-.xbox-btn-a { grid-area: a; background-color: #00cc1b; } /* A - Verde */
+/* Mapeamento das áreas do Grid com as cores corretas */
+.xbox-btn-y { grid-area: y; background-color: #e6b800 !important; } 
+.xbox-btn-o { grid-area: o; background-color: #cc002c !important; } 
+.xbox-btn-x { grid-area: x; background-color: #0077e6 !important; } 
+.xbox-btn-a { grid-area: a; background-color: #00cc1b !important; } 
 
 #mensagem {
     margin-top: 20px;
     font-weight: bold;
-    min-height: 20px; /* Evita que o painel mude de tamanho quando a mensagem sumir/aparecer */
+    min-height: 20px; 
 }
