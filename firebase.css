@@ -1,12 +1,15 @@
+/* firebase.css */
+
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    height: 100vh; 
+    height: 100dvh; /* Adaptação perfeita para telas de celular */
     background-color: #2e2e2e; 
     margin: 0; 
     color: white; 
+    overflow: hidden; /* Evita barras de rolagem chatas no celular */
 }
 
 .control-panel { 
@@ -16,6 +19,9 @@ body {
     padding: 30px; 
     box-shadow: 10px 10px 30px rgba(0,0,0,0.5); 
     text-align: center; 
+    width: 85%; /* No celular, ele vai ocupar a largura da tela de forma elegante */
+    max-width: 320px; /* Garante que não fique gigante no computador */
+    box-sizing: border-box;
 }
 
 fieldset { 
@@ -31,7 +37,7 @@ legend {
     letter-spacing: 1px;
 }
 
-/* Área dos botões - Grid em formato de Cruz */
+/* Área dos botões - Grid travado para não quebrar no mobile */
 .xbox-buttons { 
     display: grid; 
     grid-template-columns: repeat(3, 65px);
@@ -40,12 +46,12 @@ legend {
         ". y ." 
         "x . o" 
         ". a ."; 
-    gap: 10px; 
+    gap: 15px; 
     justify-content: center; 
     align-content: center;
     margin: 0 auto;
-    width: 215px;
-    height: 215px;
+    width: 225px;
+    height: 225px;
 }
 
 /* Estilo dos botões redondos */
@@ -67,6 +73,7 @@ legend {
     justify-content: center; 
     padding: 0; 
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Remove aquele quadrado azul feio que o celular cria ao tocar no botão */
 }
 
 /* Efeito de clique */
@@ -75,7 +82,7 @@ legend {
     box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.4); 
 }
 
-/* Mapeamento das áreas do Grid com as cores corretas */
+/* Cores oficiais do Xbox */
 .xbox-btn-y { grid-area: y; background-color: #e6b800 !important; } 
 .xbox-btn-o { grid-area: o; background-color: #cc002c !important; } 
 .xbox-btn-x { grid-area: x; background-color: #0077e6 !important; } 
