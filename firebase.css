@@ -1,1 +1,76 @@
+/* style.css */
 
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    background-color: #2e2e2e; 
+    margin: 0; 
+    color: white; 
+}
+
+.control-panel { 
+    background-color: #1a1a1a; 
+    border: 5px solid #333; 
+    border-radius: 20px; 
+    padding: 25px; 
+    box-shadow: 10px 10px 30px rgba(0,0,0,0.5); 
+    text-align: center; 
+}
+
+fieldset { 
+    border: none; 
+    padding: 0; 
+    margin: 0; 
+}
+
+legend { 
+    font-size: 1.2rem; 
+    font-weight: bold; 
+    margin-bottom: 25px; 
+}
+
+/* Organização dos botões em formato de cruz/losango */
+.xbox-buttons { 
+    display: grid; 
+    grid-template-areas: 
+        ". y ." 
+        "x . o" 
+        ". a ."; 
+    gap: 15px; 
+    justify-content: center; 
+    align-items: center; 
+}
+
+/* Estilo comum para todos os botões redondos */
+.xbox-buttons button { 
+    width: 65px; 
+    height: 65px; 
+    border-radius: 50%; 
+    border: 3px solid rgba(255,255,255,0.1); 
+    font-size: 1.8rem; 
+    font-weight: bold; 
+    color: white; 
+    cursor: pointer; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7); 
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.5); 
+    transform: translateY(0); 
+    transition: all 0.1s ease-in-out; 
+    position: relative; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+/* Efeito de clique (afundar o botão) */
+.xbox-buttons button:active { 
+    transform: translateY(4px); 
+    box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3); 
+}
+
+/* Cores específicas dos botões do Xbox */
+.xbox-btn-y { grid-area: y; background-color: #ffd000; } /* Y - Amarelo */
+.xbox-btn-o { grid-area: o; background-color: #ff003c; } /* O - Vermelho */
+.xbox-btn-x { grid-area: x; background-color: #0088ff; } /*
