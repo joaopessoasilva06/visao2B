@@ -2,14 +2,14 @@
 <html lang="PT-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Controle Remoto Arduino</title>
     
     <link rel="stylesheet" href="firebase.css">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
               apiKey: "AIzaSyDHH7SFX-Ao6a1nE8li_IYyp6BjpFrDx10",
@@ -23,46 +23,53 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function movimentar(direcao) {
+        // Nova função que atualiza campos específicos sem apagar o resto do documento
+        async function enviarDados(valor, tipoCampo) {
             const mensagem = document.getElementById("mensagem");
             
             try {
                 const docRef = doc(db, "movimentos", "atual");
-                await setDoc(docRef, {
-                    comando: direcao,
+                
+                // Criamos o objeto de atualização dinamicamente
+                const dadosAtualizados = {
                     horario: serverTimestamp()
-                });
-                mensagem.textContent = `Comando: ${direcao}`;
+                };
+                dadosAtualizados[tipoCampo] = valor; // Define se vai atualizar 'comando' ou 'direcional'
+
+                // updateDoc modifica apenas os campos enviados, preservando os outros
+                await updateDoc(docRef, dadosAtualizados);
+
+                mensagem.textContent = `${tipoCampo.toUpperCase()}: ${valor}`;
                 mensagem.style.color = "#00ff22";
             } catch (error) {
                 mensagem.textContent = "Erro: " + error.message;
                 mensagem.style.color = "#ff003c";
             }
         }
-        window.movimentar = movimentar;
+        window.enviarDados = enviarDados;
     </script>
 </head>
 <body>
     <div class="gamepad-container">
         <div class="left-side">
             <div class="dpad-buttons">
-                <button class="dpad-btn dpad-up" onclick="movimentar('W')">▲</button>
-                <button class="dpad-btn dpad-left" onclick="movimentar('A_SETA')">◀</button>
-                <button class="dpad-btn dpad-right" onclick="movimentar('D')">▶</button>
-                <button class="dpad-btn dpad-down" onclick="movimentar('S')">▼</button>
+                <button class="dpad-btn dpad-up" onclick="enviarDados('W', 'direcional')">▲</button>
+                <button class="dpad-btn dpad-left" onclick="enviarDados('A', 'direcional')">◀</button>
+                <button class="dpad-btn dpad-right" onclick="enviarDados('D', 'direcional')">▶</button>
+                <button class="dpad-btn dpad-down" onclick="enviarDados('S', 'direcional')">▼</button>
             </div>
         </div>
 
         <div class="center-side">
-            <p id="mensagem"></p>
+            <p id="mensagem">Aguardando comando...</p>
         </div>
 
         <div class="right-side">
             <div class="xbox-buttons">
-                <button class="xbox-btn xbox-btn-y" onclick="movimentar('Y')">Y</button>
-                <button class="xbox-btn xbox-btn-x" onclick="movimentar('X')">X</button>
-                <button class="xbox-btn xbox-btn-o" onclick="movimentar('O')">O</button>
-                <button class="xbox-btn xbox-btn-a" onclick="movimentar('A')">A</button>
+                <button class="xbox-btn xbox-btn-y" onclick="enviarDados('Y', 'comando')">Y</button>
+                <button class="xbox-btn xbox-btn-x" onclick="enviarDados('X', 'comando')">X</button>
+                <button class="xbox-btn xbox-btn-o" onclick="enviarDados('O', 'comando')">O</button>
+                <button class="xbox-btn xbox-btn-a" onclick="enviarDados('A', 'comando')">A</button>
             </div>
         </div>
     </div>
