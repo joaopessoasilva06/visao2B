@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle Arduino</title>
+    <title>Controle Xbox Arduino</title>
+    
+    <link rel="stylesheet" href="style.css">
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // Importamos 'getFirestore', 'doc' e 'setDoc' para atualizar um documento específico
         import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Suas configurações do Firebase
         const firebaseConfig = {
               apiKey: "AIzaSyDHH7SFX-Ao6a1nE8li_IYyp6BjpFrDx10",
               authDomain: "endereco3aelias.firebaseapp.com",
@@ -20,46 +20,40 @@
               appId: "1:965511939666:web:d1a48466e9ff7ca4a0818b"
         };
 
-        // Inicializa o Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Função para atualizar o comando
         async function movimentar(direcao) {
             const mensagem = document.getElementById("mensagem");
             
             try {
-                // doc(db, "coleção", "ID_do_documento")
-                // Criamos/Apontamos para um documento chamado "atual" dentro da coleção "movimentos"
                 const docRef = doc(db, "movimentos", "atual");
-
-                // setDoc substitui os dados desse documento específico na mesma hora
                 await setDoc(docRef, {
                     comando: direcao,
-                    horario: serverTimestamp() // Opcional, bom para o Arduino saber quando mudou
+                    horario: serverTimestamp()
                 });
-
-                mensagem.textContent = `Movimento alterado para: ${direcao}`;
-                mensagem.style.color = "green";
+                mensagem.textContent = `Comando: ${direcao}`;
+                mensagem.style.color = "#00ff22";
             } catch (error) {
-                mensagem.textContent = "Erro ao atualizar: " + error.message;
-                mensagem.style.color = "red";
+                mensagem.textContent = "Erro: " + error.message;
+                mensagem.style.color = "#ff003c";
             }
         }
-
-        // Torna a função visível para o HTML "onclick"
         window.movimentar = movimentar;
     </script>
 </head>
 <body>
-    <fieldset>
-        <legend>CONTROLE DE MOVIMENTO</legend>
-        <button onclick="movimentar('Y')">PARA FRENTE (Y)</button>
-        <button onclick="movimentar('X')">PARA ESQUERDA (X)</button>
-        <button onclick="movimentar('O')">PARA DIREITA (O)</button>
-        <button onclick="movimentar('A')">PARA TRAS (A)</button>
-    </fieldset>
-
-    <p id="mensagem"></p>
+    <div class="control-panel">
+        <fieldset>
+            <legend>CONTROLE DE MOVIMENTO</legend>
+            <div class="xbox-buttons">
+                <button class="xbox-btn-y" onclick="movimentar('Y')">Y</button>
+                <button class="xbox-btn-x" onclick="movimentar('X')">X</button>
+                <button class="xbox-btn-o" onclick="movimentar('O')">O</button>
+                <button class="xbox-btn-a" onclick="movimentar('A')">A</button>
+            </div>
+        </fieldset>
+        <p id="mensagem"></p>
+    </div>
 </body>
 </html>
