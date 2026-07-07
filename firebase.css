@@ -15,7 +15,7 @@ body {
     background-color: #1a1a1a; 
     border: 5px solid #333; 
     border-radius: 20px; 
-    padding: 25px; 
+    padding: 30px; 
     box-shadow: 10px 10px 30px rgba(0,0,0,0.5); 
     text-align: center; 
 }
@@ -30,47 +30,61 @@ legend {
     font-size: 1.2rem; 
     font-weight: bold; 
     margin-bottom: 25px; 
+    letter-spacing: 1px;
 }
 
-/* Organização dos botões em formato de cruz/losango */
+/* Área dos botões - Forçando um quadrado perfeito de 210px por 210px */
 .xbox-buttons { 
     display: grid; 
+    grid-template-columns: repeat(3, 65px);
+    grid-template-rows: repeat(3, 65px);
     grid-template-areas: 
         ". y ." 
         "x . o" 
         ". a ."; 
-    gap: 15px; 
+    gap: 10px; /* Espaçamento idêntico entre todos os eixos */
     justify-content: center; 
-    align-items: center; 
+    align-content: center;
+    margin: 0 auto;
+    width: 215px;
+    height: 215px;
 }
 
-/* Estilo comum para todos os botões redondos */
+/* Estilo dos botões redondos */
 .xbox-buttons button { 
     width: 65px; 
     height: 65px; 
     border-radius: 50%; 
-    border: 3px solid rgba(255,255,255,0.1); 
+    border: 3px solid rgba(255,255,255,0.15); 
     font-size: 1.8rem; 
     font-weight: bold; 
     color: white; 
     cursor: pointer; 
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.7); 
-    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.5); 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); 
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.6); 
     transform: translateY(0); 
-    transition: all 0.1s ease-in-out; 
-    position: relative; 
+    transition: all 0.05s ease-in-out; 
     display: flex; 
     align-items: center; 
     justify-content: center; 
+    padding: 0; /* Remove margens internas que desalinhavam o texto */
+    box-sizing: border-box;
 }
 
-/* Efeito de clique (afundar o botão) */
+/* Efeito de clique */
 .xbox-buttons button:active { 
-    transform: translateY(4px); 
-    box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3); 
+    transform: translateY(3px); 
+    box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.4); 
 }
 
-/* Cores específicas dos botões do Xbox */
-.xbox-btn-y { grid-area: y; background-color: #ffd000; } /* Y - Amarelo */
-.xbox-btn-o { grid-area: o; background-color: #ff003c; } /* O - Vermelho */
-.xbox-btn-x { grid-area: x; background-color: #0088ff; } /*
+/* Cores oficiais do layout ABXY do Xbox */
+.xbox-btn-y { grid-area: y; background-color: #e6b800; } /* Y - Amarelo */
+.xbox-btn-o { grid-area: o; background-color: #cc002c; } /* B/O - Vermelho */
+.xbox-btn-x { grid-area: x; background-color: #0077e6; } /* X - Azul */
+.xbox-btn-a { grid-area: a; background-color: #00cc1b; } /* A - Verde */
+
+#mensagem {
+    margin-top: 20px;
+    font-weight: bold;
+    min-height: 20px; /* Evita que o painel mude de tamanho quando a mensagem sumir/aparecer */
+}
