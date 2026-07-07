@@ -15,33 +15,34 @@ body {
     box-sizing: border-box;
 }
 
-/* Container principal que ocupa a tela toda de lado a lado */
+/* Container principal ajustado para responder bem em qualquer orientação do celular */
 .gamepad-container {
     display: flex;
+    flex-direction: row; /* Força ficar lado a lado */
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 1200px; /* Evita que fique excessivamente longe em monitores gigantes */
-    padding: 20px 40px;
+    max-width: 1000px; 
+    padding: 10px 30px;
     box-sizing: border-box;
 }
 
-/* Lado Esquerdo e Direito fixos para manter proporção */
 .left-side, .right-side {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-width: 225px;
+    width: 220px;
+    height: 220px;
+    flex-shrink: 0; /* Impede o celular de esmagar os botões */
 }
 
 .center-side {
     flex: 1;
     text-align: center;
+    padding: 0 10px;
 }
 
-/* ==========================================
-   ESTRUTURA EM CRUZ (Usada nos dois lados)
-============================================= */
+/* Layout de grade em cruz idêntico para ambos */
 .dpad-buttons, .xbox-buttons { 
     display: grid; 
     grid-template-columns: repeat(3, 65px);
@@ -52,7 +53,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Mapeamento das posições da Cruz da Esquerda (Setas) */
 .dpad-buttons {
     grid-template-areas: 
         ". up ." 
@@ -60,7 +60,6 @@ body {
         ". down ."; 
 }
 
-/* Mapeamento das posições da Cruz da Direita (Xbox) */
 .xbox-buttons { 
     grid-template-areas: 
         ". y ." 
@@ -68,9 +67,7 @@ body {
         ". a ."; 
 }
 
-/* ==========================================
-   ESTILO GERAL DOS BOTÕES (Comum a todos)
-============================================= */
+/* Estilo universal dos botões redondos */
 .dpad-buttons button, .xbox-buttons button { 
     width: 65px; 
     height: 65px; 
@@ -92,32 +89,34 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Efeito de clique */
 .dpad-buttons button:active, .xbox-buttons button:active { 
     transform: translateY(3px); 
     box-shadow: inset 0 2px 0 rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.4); 
 }
 
-/* ==========================================
-   CORES DO LADO ESQUERDO (Setas - Estilo D-Pad)
-============================================= */
-.dpad-btn { background-color: #333333 !important; } /* Cor cinza escuro estilo controle clássico */
+/* Cor das Setas */
+.dpad-btn { background-color: #333333 !important; } 
 .dpad-up { grid-area: up; }
 .dpad-left { grid-area: left; }
 .dpad-right { grid-area: right; }
 .dpad-down { grid-area: down; }
 
-/* ==========================================
-   CORES DO LADO DIREITO (Xbox ABXY)
-============================================= */
+/* Cores do Xbox */
 .xbox-btn-y { grid-area: y; background-color: #e6b800 !important; } 
 .xbox-btn-o { grid-area: o; background-color: #cc002c !important; } 
 .xbox-btn-x { grid-area: x; background-color: #0077e6 !important; } 
 .xbox-btn-a { grid-area: a; background-color: #00cc1b !important; } 
 
-/* Texto de feedback do Firestore */
 #mensagem {
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin: 0;
+    word-break: break-all;
+}
+
+/* Correção para celulares muito pequenos ou em pé: diminui levemente o espaço central */
+@media (max-width: 600px) {
+    .gamepad-container {
+        padding: 5px 10px;
+    }
 }
