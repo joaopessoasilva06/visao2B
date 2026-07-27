@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - L/R Isolados Definitivo</title>
+  <title>Controle Robótica - Trava Definitiva L/R</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -104,8 +104,19 @@
       let comando = "PARAR";
       const LIMIAR_LADOS = 3.5;
 
-      // ESTADO 1: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y muito negativo)
-      if (y < -5.0) {
+      // 1. ESTADO DEITADO (Tela virada pro teto: Z > 1.5 e Y baixo)
+      // Bloqueia 100% o aparecimento de A, D, W, S enquanto o celular estiver deitado
+      if (z > 1.5 && Math.abs(y) < 5.0) {
+        if (x < -LIMIAR_LADOS) {
+          comando = "R";
+        } else if (x > LIMIAR_LADOS) {
+          comando = "L";
+        } else {
+          comando = "PARAR";
+        }
+      }
+      // 2. ESTADO DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y fortemente negativo)
+      else if (y < -4.5) {
         if (x < -LIMIAR_LADOS) {
           comando = "Y";
         } else if (x > LIMIAR_LADOS) {
@@ -114,19 +125,8 @@
           comando = "S";
         }
       }
-      // ESTADO 2: CELULAR DEITADO / HORIZONTAL (Y próximo de zero, não está em pé)
-      // Se Y estiver neutro (entre -3.5 e +3.5), o celular ESTÁ deitado!
-      else if (Math.abs(y) <= 3.5) {
-        if (x < -LIMIAR_LADOS) {
-          comando = "R"; // Inclinou/Girou para direita deitado
-        } else if (x > LIMIAR_LADOS) {
-          comando = "L"; // Inclinou/Girou para esquerda deitado
-        } else {
-          comando = "PARAR";
-        }
-      }
-      // ESTADO 3: CELULAR EM PÉ (Y fortemente positivo, topo apontado pra cima)
-      else if (y > 3.5) {
+      // 3. ESTADO EM PÉ (Vertical em mão normal)
+      else if (y >= 4.5 || (Math.abs(x) > LIMIAR_LADOS && z <= 1.5)) {
         if (x < -LIMIAR_LADOS) {
           comando = "A";
         } else if (x > LIMIAR_LADOS) {
@@ -161,7 +161,7 @@
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Pronto! Bloqueio de eixos ajustado.");
+        logger("Trava de eixo Z aplicada!");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
