@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - Lógica dos 3 Estados</title>
+  <title>Controle Robótica - L/R Isolados</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -102,36 +102,37 @@
       document.getElementById('z-val').innerText = z.toFixed(1);
 
       let comando = "PARAR";
-      const LIMIAR_LADOS = 3.5; // Força para identificar virada de lado
+      const LIMIAR_LADOS = 3.5;
 
-      // ESTADO 1: CELULAR DEITADO COM A TELA PRO TETO (Z muito alto)
-      if (z > 7.0) {
+      // ESTADO 1: TELA VIRADA PARA CIMA (Mão aberta / Celular horizontal)
+      // Ajustado o limite de Z para ser mais tolerante (z > 4.5 e y baixo)
+      if (z > 4.5 && Math.abs(y) < 6.0) {
         if (x < -LIMIAR_LADOS) {
-          comando = "R"; // Virado para a direita deitado
+          comando = "R";
         } else if (x > LIMIAR_LADOS) {
-          comando = "L"; // Virado para a esquerda deitado
+          comando = "L";
         } else {
-          comando = "PARAR"; // Deitado plano
+          comando = "PARAR";
         }
       }
-      // ESTADO 2: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y muito negativo)
+      // ESTADO 2: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y negativo)
       else if (y < -5.0) {
         if (x < -LIMIAR_LADOS) {
-          comando = "Y"; // Ponta-cabeça virado para a direita
+          comando = "Y";
         } else if (x > LIMIAR_LADOS) {
-          comando = "X"; // Ponta-cabeça virado para a esquerda
+          comando = "X";
         } else {
-          comando = "S"; // Ponta-cabeça reto
+          comando = "S";
         }
       }
-      // ESTADO 3: CELULAR EM PÉ / EM MÃO NORMAL (Y positivo ou próximo de neutro)
+      // ESTADO 3: CELULAR EM PÉ (Em mão normal)
       else {
         if (x < -LIMIAR_LADOS) {
-          comando = "A"; // Em pé virado para a esquerda
+          comando = "A";
         } else if (x > LIMIAR_LADOS) {
-          comando = "D"; // Em pé virado para a direita
+          comando = "D";
         } else if (y > 2.0) {
-          comando = "W"; // Em pé reto
+          comando = "W";
         }
       }
 
@@ -160,7 +161,7 @@
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Acelerômetro conectado com a nova lógica!");
+        logger("Pronto! Estado deitado corrigido.");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
