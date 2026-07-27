@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - Moto E7</title>
+  <title>Controle Robótica - Moto E7 Fix</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -54,7 +54,7 @@
   <h1>Controle por Inclinação</h1>
 
   <div class="status-card">
-    <p>Comando enviando:</p>
+    <p>Comando enviado:</p>
     <div id="comando" class="comando-display">PARAR</div>
     <p>Beta (Frente/Trás): <span id="beta-val">0</span>°</p>
     <p>Gamma (Lados): <span id="gamma-val">0</span>°</p>
@@ -89,17 +89,13 @@
       logDiv.scrollTop = logDiv.scrollHeight;
     }
 
-    // Verifica se está rodando em HTTPS
-    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-      logger("ATENÇÃO: O site não está rodando em HTTPS! Os sensores vão falhar no Android.");
-    }
-
     function processarOrientacao(event) {
+      // Pega os valores reais do evento
       const beta = event.beta;
       const gamma = event.gamma;
 
+      // Se ainda vier nulo por milissegundos, ignora até chegar um valor válido
       if (beta === null || gamma === null) {
-        logger("Sensor retornou valores nulos.");
         return;
       }
 
@@ -107,7 +103,7 @@
       document.getElementById('gamma-val').innerText = Math.round(gamma);
 
       let comando = "PARAR";
-      const LIMIAR = 12; // Limiar um pouco menor para facilitar o teste no Moto E7
+      const LIMIAR = 12;
 
       if (beta < -LIMIAR) comando = "W";
       else if (beta > LIMIAR) comando = "S";
@@ -135,13 +131,15 @@
     }
 
     document.getElementById('btn-permissao').addEventListener('click', () => {
-      logger("Botão clicado. Tentando ativar sensores...");
+      logger("Iniciando escuta dos sensores...");
 
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', processarOrientacao, true);
-        logger("Atributo deviceorientation ativado!");
+      // Escuta o evento padrão e o evento absoluto (compatibilidade Android)
+      if ('DeviceOrientationEvent' in window) {
+        window.addEventListener('deviceorientation', processarOrientacao, false);
+        window.addEventListener('deviceorientationabsolute', processarOrientacao, false);
+        logger("Escutando sensores... Incline o aparelho!");
       } else {
-        logger("Erro: Seu navegador não suporta DeviceOrientationEvent.");
+        logger("Erro: Dispositivo não possui giroscópio/acelerômetro.");
       }
     });
   </script>
