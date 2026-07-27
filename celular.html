@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - 8 Posicoes Claras</title>
+  <title>Controle Robótica - Lógica dos 3 Estados</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,7 +51,7 @@
 </head>
 <body>
 
-  <h1>Controle por Posições (Moto E7)</h1>
+  <h1>Controle por Posições Mapeadas</h1>
 
   <div class="status-card">
     <p>Comando enviado:</p>
@@ -102,30 +102,37 @@
       document.getElementById('z-val').innerText = z.toFixed(1);
 
       let comando = "PARAR";
+      const LIMIAR_LADOS = 3.5; // Força para identificar virada de lado
 
-      // 1. GESTO Y: Celular deitado na horizontal de costas (Tela para o teto, Z próximo de 9.8)
-      if (z > 7.5) {
-        comando = "Y";
+      // ESTADO 1: CELULAR DEITADO COM A TELA PRO TETO (Z muito alto)
+      if (z > 7.0) {
+        if (x < -LIMIAR_LADOS) {
+          comando = "R"; // Virado para a direita deitado
+        } else if (x > LIMIAR_LADOS) {
+          comando = "L"; // Virado para a esquerda deitado
+        } else {
+          comando = "PARAR"; // Deitado plano
+        }
       }
-      // 2. GESTO X: Celular de ponta-cabeça (Topo para baixo, Y muito negativo)
-      else if (y < -7.5) {
-        comando = "X";
+      // ESTADO 2: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y muito negativo)
+      else if (y < -5.0) {
+        if (x < -LIMIAR_LADOS) {
+          comando = "Y"; // Ponta-cabeça virado para a direita
+        } else if (x > LIMIAR_LADOS) {
+          comando = "X"; // Ponta-cabeça virado para a esquerda
+        } else {
+          comando = "S"; // Ponta-cabeça reto
+        }
       }
-      // 3. GESTO L: Celular virado 90° na horizontal para a esquerda (X muito positivo)
-      else if (x > 7.5) {
-        comando = "L";
-      }
-      // 4. GESTO R: Celular virado 90° na horizontal para a direita (X muito negativo)
-      else if (x < -7.5) {
-        comando = "R";
-      }
-      // 5. MOVIMENTOS PADRÃO (Inclinando levemente enquanto segura em pé)
+      // ESTADO 3: CELULAR EM PÉ / EM MÃO NORMAL (Y positivo ou próximo de neutro)
       else {
-        const LIMIAR = 3.5;
-        if (y < -LIMIAR) comando = "S";      // Inclinar levemente para frente
-        else if (y > LIMIAR) comando = "W"; // Inclinar levemente para trás
-        else if (x < -LIMIAR) comando = "A"; // Inclinar levemente para esquerda
-        else if (x > LIMIAR) comando = "D";  // Inclinar levemente para direita
+        if (x < -LIMIAR_LADOS) {
+          comando = "A"; // Em pé virado para a esquerda
+        } else if (x > LIMIAR_LADOS) {
+          comando = "D"; // Em pé virado para a direita
+        } else if (y > 2.0) {
+          comando = "W"; // Em pé reto
+        }
       }
 
       document.getElementById('comando').innerText = comando;
@@ -153,7 +160,7 @@
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Pronto! Teste as posições estáticas.");
+        logger("Acelerômetro conectado com a nova lógica!");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
