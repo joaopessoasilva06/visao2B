@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - Moto E7 Fix</title>
+  <title>Controle Robótica - Moto E7 (Acelerômetro)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,16 +51,16 @@
 </head>
 <body>
 
-  <h1>Controle por Inclinação</h1>
+  <h1>Controle por Acelerômetro</h1>
 
   <div class="status-card">
     <p>Comando enviado:</p>
     <div id="comando" class="comando-display">PARAR</div>
-    <p>Beta (Frente/Trás): <span id="beta-val">0</span>°</p>
-    <p>Gamma (Lados): <span id="gamma-val">0</span>°</p>
+    <p>Eixo Y (Frente/Trás): <span id="y-val">0</span></p>
+    <p>Eixo X (Lados): <span id="x-val">0</span></p>
   </div>
 
-  <button id="btn-permissao">Ativar Sensores do Celular</button>
+  <button id="btn-permissao">Conectar Acelerômetro</button>
 
   <h3>Status do Sistema:</h3>
   <div id="log">Aguardando clique no botão...</div>
@@ -89,26 +89,29 @@
       logDiv.scrollTop = logDiv.scrollHeight;
     }
 
-    function processarOrientacao(event) {
-      // Pega os valores reais do evento
-      const beta = event.beta;
-      const gamma = event.gamma;
+    function processarAcelerometro(event) {
+      // Usamos a aceleração com gravidade (funciona em todos os Androids)
+      const acc = event.accelerationIncludingGravity;
 
-      // Se ainda vier nulo por milissegundos, ignora até chegar um valor válido
-      if (beta === null || gamma === null) {
+      if (!acc || acc.x === null || acc.y === null) {
         return;
       }
 
-      document.getElementById('beta-val').innerText = Math.round(beta);
-      document.getElementById('gamma-val').innerText = Math.round(gamma);
+      // x e y medem a gravidade atuando no corpo do celular (-10 a +10 aprox)
+      const x = acc.x;
+      const y = acc.y;
+
+      document.getElementById('x-val').innerText = x.toFixed(1);
+      document.getElementById('y-val').innerText = y.toFixed(1);
 
       let comando = "PARAR";
-      const LIMIAR = 12;
+      const LIMIAR = 3.5; // Força de gravidade mínima ao tombar o celular
 
-      if (beta < -LIMIAR) comando = "W";
-      else if (beta > LIMIAR) comando = "S";
-      else if (gamma < -LIMIAR) comando = "A";
-      else if (gamma > LIMIAR) comando = "D";
+      // Lógica ajustada para quando você segura o celular em pé na mão:
+      if (y < -LIMIAR) comando = "W";      // Inclinar para frente
+      else if (y > LIMIAR) comando = "S"; // Inclinar para trás
+      else if (x < -LIMIAR) comando = "D"; // Tombar para direita
+      else if (x > LIMIAR) comando = "A";  // Tombar para esquerda
 
       document.getElementById('comando').innerText = comando;
 
@@ -131,15 +134,13 @@
     }
 
     document.getElementById('btn-permissao').addEventListener('click', () => {
-      logger("Iniciando escuta dos sensores...");
+      logger("Ativando Acelerômetro...");
 
-      // Escuta o evento padrão e o evento absoluto (compatibilidade Android)
-      if ('DeviceOrientationEvent' in window) {
-        window.addEventListener('deviceorientation', processarOrientacao, false);
-        window.addEventListener('deviceorientationabsolute', processarOrientacao, false);
-        logger("Escutando sensores... Incline o aparelho!");
+      if ('DeviceMotionEvent' in window) {
+        window.addEventListener('devicemotion', processarAcelerometro, false);
+        logger("Acelerômetro ativo! Mova/Incline o celular.");
       } else {
-        logger("Erro: Dispositivo não possui giroscópio/acelerômetro.");
+        logger("Erro: Acelerômetro não suportado.");
       }
     });
   </script>
