@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - Moto E7 (Acelerômetro)</title>
+  <title>Controle Robótica - Moto E7 (Invertido)</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -90,14 +90,12 @@
     }
 
     function processarAcelerometro(event) {
-      // Usamos a aceleração com gravidade (funciona em todos os Androids)
       const acc = event.accelerationIncludingGravity;
 
       if (!acc || acc.x === null || acc.y === null) {
         return;
       }
 
-      // x e y medem a gravidade atuando no corpo do celular (-10 a +10 aprox)
       const x = acc.x;
       const y = acc.y;
 
@@ -105,13 +103,13 @@
       document.getElementById('y-val').innerText = y.toFixed(1);
 
       let comando = "PARAR";
-      const LIMIAR = 3.5; // Força de gravidade mínima ao tombar o celular
+      const LIMIAR = 3.5;
 
-      // Lógica ajustada para quando você segura o celular em pé na mão:
-      if (y < -LIMIAR) comando = "W";      // Inclinar para frente
-      else if (y > LIMIAR) comando = "S"; // Inclinar para trás
-      else if (x < -LIMIAR) comando = "D"; // Tombar para direita
-      else if (x > LIMIAR) comando = "A";  // Tombar para esquerda
+      // Lógica com direções invertidas conforme solicitado:
+      if (y < -LIMIAR) comando = "S";      // Inclinar para frente -> S
+      else if (y > LIMIAR) comando = "W"; // Inclinar para trás -> W
+      else if (x < -LIMIAR) comando = "A"; // Tombar para direita -> A
+      else if (x > LIMIAR) comando = "D";  // Tombar para esquerda -> D
 
       document.getElementById('comando').innerText = comando;
 
