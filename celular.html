@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - Firestore</title>
+  <title>Controle Robótica - Moto E7</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +18,6 @@
       padding: 20px;
       max-width: 350px;
       margin: 20px auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
     .comando-display {
       font-size: 3.5rem;
@@ -35,6 +34,18 @@
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 15px;
+    }
+    #log {
+      background: #000;
+      color: #00ff00;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: left;
+      font-size: 0.8rem;
+      max-height: 150px;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -43,20 +54,21 @@
   <h1>Controle por Inclinação</h1>
 
   <div class="status-card">
-    <p>Comando enviado para coleção <strong>celular</strong>:</p>
+    <p>Comando enviando:</p>
     <div id="comando" class="comando-display">PARAR</div>
-    <p>Inclinação Frente/Trás: <span id="beta-val">0</span>°</p>
-    <p>Inclinação Lados: <span id="gamma-val">0</span>°</p>
+    <p>Beta (Frente/Trás): <span id="beta-val">0</span>°</p>
+    <p>Gamma (Lados): <span id="gamma-val">0</span>°</p>
   </div>
 
-  <button id="btn-permissao">Conectar Sensores do Celular</button>
+  <button id="btn-permissao">Ativar Sensores do Celular</button>
+
+  <h3>Status do Sistema:</h3>
+  <div id="log">Aguardando clique no botão...</div>
 
   <script type="module">
-    // Importações do Firebase SDK v10 (CDN oficial)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Suas credenciais do projeto endereco3aelias
     const firebaseConfig = {
       apiKey: "AIzaSyDHH7SFX-Ao6a1nE8li_IYyp6BjpFrDx10",
       authDomain: "endereco3aelias.firebaseapp.com",
@@ -66,80 +78,70 @@
       appId: "1:965511939666:web:d1a48466e9ff7ca4a0818b"
     };
 
-    // Inicialização do Firebase e do Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
     let ultimoComandoEnviado = "";
 
-    // Mapeia a inclinação do dispositivo
-    function processarOrientacao(event) {
-      const beta = event.beta;   // Movimento para cima/baixo
-      const gamma = event.gamma; // Movimento para esquerda/direita
+    function logger(msg) {
+      const logDiv = document.getElementById('log');
+      logDiv.innerHTML += "<br>> " + msg;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
 
-      if (beta === null || gamma === null) return;
+    // Verifica se está rodando em HTTPS
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      logger("ATENÇÃO: O site não está rodando em HTTPS! Os sensores vão falhar no Android.");
+    }
+
+    function processarOrientacao(event) {
+      const beta = event.beta;
+      const gamma = event.gamma;
+
+      if (beta === null || gamma === null) {
+        logger("Sensor retornou valores nulos.");
+        return;
+      }
 
       document.getElementById('beta-val').innerText = Math.round(beta);
       document.getElementById('gamma-val').innerText = Math.round(gamma);
 
       let comando = "PARAR";
-      const LIMIAR = 15; // Ângulo mínimo (em graus) para considerar movimento
+      const LIMIAR = 12; // Limiar um pouco menor para facilitar o teste no Moto E7
 
-      // Lógica das direções pedidas:
-      // Movimento para CIMA (inclinar celular para longe de você / frente) -> W
-      // Movimento para BAIXO (inclinar celular para perto de você / trás) -> S
-      // Movimento para ESQUERDA -> A
-      // Movimento para DIREITA -> D
-      if (beta < -LIMIAR) {
-        comando = "W"; 
-      } else if (beta > LIMIAR) {
-        comando = "S"; 
-      } else if (gamma < -LIMIAR) {
-        comando = "A"; 
-      } else if (gamma > LIMIAR) {
-        comando = "D"; 
-      }
+      if (beta < -LIMIAR) comando = "W";
+      else if (beta > LIMIAR) comando = "S";
+      else if (gamma < -LIMIAR) comando = "A";
+      else if (gamma > LIMIAR) comando = "D";
 
       document.getElementById('comando').innerText = comando;
 
-      // Envia ao Firestore apenas quando o comando muda
       if (comando !== ultimoComandoEnviado) {
         ultimoComandoEnviado = comando;
         gravarNoFirestore(comando);
       }
     }
 
-    // Gravação no documento 'controle' dentro da coleção 'celular'
     async function gravarNoFirestore(comando) {
       try {
         await setDoc(doc(db, "celular", "controle"), {
           comando: comando,
           atualizadoEm: new Date()
         });
-        console.log("Sucesso! Comando salvo na coleção 'celular':", comando);
+        logger("Gravado no Firestore: " + comando);
       } catch (erro) {
-        console.error("Erro ao gravar no Firestore:", erro);
+        logger("ERRO no Firestore: " + erro.message);
       }
     }
 
-    // Solicita autorização nos sensores (essencial para iOS)
-    const btnPermissao = document.getElementById('btn-permissao');
-    btnPermissao.addEventListener('click', () => {
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-          .then(resposta => {
-            if (resposta === 'granted') {
-              window.addEventListener('deviceorientation', processarOrientacao);
-              btnPermissao.style.display = 'none';
-            } else {
-              alert('Permissão para os sensores foi recusada.');
-            }
-          })
-          .catch(console.error);
+    document.getElementById('btn-permissao').addEventListener('click', () => {
+      logger("Botão clicado. Tentando ativar sensores...");
+
+      if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', processarOrientacao, true);
+        logger("Atributo deviceorientation ativado!");
       } else {
-        // Padrão para Android / Navegadores Desktop
-        window.addEventListener('deviceorientation', processarOrientacao);
-        btnPermissao.style.display = 'none';
+        logger("Erro: Seu navegador não suporta DeviceOrientationEvent.");
       }
     });
   </script>
