@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - 8 Gestos (Moto E7)</title>
+  <title>Controle Robótica - 8 Gestos Ajustados</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,16 +51,16 @@
 </head>
 <body>
 
-  <h1>Controle por Gestos Avançados</h1>
+  <h1>Controle por Gestos (Moto E7)</h1>
 
   <div class="status-card">
     <p>Comando enviado:</p>
     <div id="comando" class="comando-display">PARAR</div>
-    <p>Eixo X: <span id="x-val">0</span> | Eixo Y: <span id="y-val">0</span></p>
-    <p>Eixo Z: <span id="z-val">0</span> | Força Total: <span id="forca-val">0</span></p>
+    <p>X: <span id="x-val">0</span> | Y: <span id="y-val">0</span> | Z: <span id="z-val">0</span></p>
+    <p>Chacoalho (Impacto): <span id="impacto-val">0</span></p>
   </div>
 
-  <button id="btn-permissao">Ativar Sensores do Celular</button>
+  <button id="btn-permissao">Conectar Sensores</button>
 
   <h3>Status do Sistema:</h3>
   <div id="log">Aguardando clique no botão...</div>
@@ -90,52 +90,53 @@
     }
 
     function processarAcelerometro(event) {
-      const acc = event.accelerationIncludingGravity;
+      const accGrav = event.accelerationIncludingGravity; // Com Gravidade
+      const accPura = event.acceleration;                  // Sem Gravidade (Só impacto)
 
-      if (!acc || acc.x === null || acc.y === null || acc.z === null) {
-        return;
+      if (!accGrav || accGrav.x === null) return;
+
+      const x = accGrav.x;
+      const y = accGrav.y;
+      const z = accGrav.z;
+
+      // Medidor de chacoalho rápido (impacto puro)
+      let forcaChacoalho = 0;
+      if (accPura && accPura.x !== null) {
+        forcaChacoalho = Math.sqrt(accPura.x ** 2 + accPura.y ** 2 + accPura.z ** 2);
       }
-
-      const x = acc.x;
-      const y = acc.y;
-      const z = acc.z;
-
-      // Magnitude / Força Total do movimento (Gravidade normal em repouso é ~9.8)
-      const forcaTotal = Math.sqrt(x * x + y * y + z * z);
 
       document.getElementById('x-val').innerText = x.toFixed(1);
       document.getElementById('y-val').innerText = y.toFixed(1);
       document.getElementById('z-val').innerText = z.toFixed(1);
-      document.getElementById('forca-val').innerText = forcaTotal.toFixed(1);
+      document.getElementById('impacto-val').innerText = forcaChacoalho.toFixed(1);
 
       let comando = "PARAR";
 
-      // 1. GESTO Y: Chacoalhar forte o celular (Gesto Lanterna Moto)
-      // Se a aceleração ultrapassar um pico forte (> 18 m/s²)
-      if (forcaTotal > 18.0) {
+      // --- VERIFICAÇÃO DOS GESTOS (MÁXIMA PRIORIDADE) ---
+
+      // 1. GESTO Y: Chacoalhar o celular para frente/trás rápido (como se ligasse a lanterna)
+      if (forcaChacoalho > 12.0) {
         comando = "Y";
-      } 
-      // 2. GESTO X: Girar o celular em torno do seu próprio eixo (Telas na horizontal / de lado)
-      // Quando o eixo Z cai quase a zero e o eixo X fica muito forte de lado
-      else if (Math.abs(z) < 2.0 && Math.abs(x) > 8.5) {
+      }
+      // 2. GESTO X: Girar o celular (Deitar a tela totalmente de lado / Horizontal)
+      else if (Math.abs(x) > 8.0 && Math.abs(y) < 3.0) {
         comando = "X";
       }
-      // 3. GESTO L e R: Braços esticados reto nas laterais (Extensão dos braços)
-      // Ao esticar o braço para a esquerda com o celular alinhado ao corpo
-      else if (x < -7.0 && y < 3.0 && y > -3.0) {
+      // 3. GESTO L: Abrir o braço para a ESQUERDA (Celular plano com a tela para cima, Z alto)
+      else if (x > 6.0 && z > 6.0) {
         comando = "L";
       }
-      // Ao esticar o braço para a direita com o celular alinhado
-      else if (x > 7.0 && y < 3.0 && y > -3.0) {
+      // 4. GESTO R: Abrir o braço para a DIREITA (Celular plano com a tela para cima, Z alto)
+      else if (x < -6.0 && z > 6.0) {
         comando = "R";
       }
-      // 4. MOVIMENTOS PADRÃO (Inclinando suavemente o celular W, S, A, D)
+      // --- MOVIMENTOS PADRÃO (Inclinando o celular de pé: W, S, A, D) ---
       else {
         const LIMIAR = 3.5;
-        if (y < -LIMIAR) comando = "S";
-        else if (y > LIMIAR) comando = "W";
-        else if (x < -LIMIAR) comando = "A";
-        else if (x > LIMIAR) comando = "D";
+        if (y < -LIMIAR) comando = "S";      // Inclinar para frente
+        else if (y > LIMIAR) comando = "W"; // Inclinar para trás
+        else if (x < -LIMIAR) comando = "A"; // Inclinar para esquerda
+        else if (x > LIMIAR) comando = "D";  // Inclinar para direita
       }
 
       document.getElementById('comando').innerText = comando;
@@ -159,11 +160,11 @@
     }
 
     document.getElementById('btn-permissao').addEventListener('click', () => {
-      logger("Ativando Acelerômetro com 8 Gestos...");
+      logger("Ativando sensores do Moto E7...");
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Acelerômetro ativo! Teste os 8 movimentos.");
+        logger("Pronto! Teste os gestos.");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
