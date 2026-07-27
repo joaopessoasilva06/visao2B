@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - 8 Gestos Ajustados</title>
+  <title>Controle Robótica - 8 Posicoes Claras</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -51,13 +51,12 @@
 </head>
 <body>
 
-  <h1>Controle por Gestos (Moto E7)</h1>
+  <h1>Controle por Posições (Moto E7)</h1>
 
   <div class="status-card">
     <p>Comando enviado:</p>
     <div id="comando" class="comando-display">PARAR</div>
-    <p>X: <span id="x-val">0</span> | Y: <span id="y-val">0</span> | Z: <span id="z-val">0</span></p>
-    <p>Chacoalho (Impacto): <span id="impacto-val">0</span></p>
+    <p>Eixo X: <span id="x-val">0</span> | Eixo Y: <span id="y-val">0</span> | Eixo Z: <span id="z-val">0</span></p>
   </div>
 
   <button id="btn-permissao">Conectar Sensores</button>
@@ -90,53 +89,43 @@
     }
 
     function processarAcelerometro(event) {
-      const accGrav = event.accelerationIncludingGravity; // Com Gravidade
-      const accPura = event.acceleration;                  // Sem Gravidade (Só impacto)
+      const acc = event.accelerationIncludingGravity;
 
-      if (!accGrav || accGrav.x === null) return;
+      if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
-      const x = accGrav.x;
-      const y = accGrav.y;
-      const z = accGrav.z;
-
-      // Medidor de chacoalho rápido (impacto puro)
-      let forcaChacoalho = 0;
-      if (accPura && accPura.x !== null) {
-        forcaChacoalho = Math.sqrt(accPura.x ** 2 + accPura.y ** 2 + accPura.z ** 2);
-      }
+      const x = acc.x;
+      const y = acc.y;
+      const z = acc.z;
 
       document.getElementById('x-val').innerText = x.toFixed(1);
       document.getElementById('y-val').innerText = y.toFixed(1);
       document.getElementById('z-val').innerText = z.toFixed(1);
-      document.getElementById('impacto-val').innerText = forcaChacoalho.toFixed(1);
 
       let comando = "PARAR";
 
-      // --- VERIFICAÇÃO DOS GESTOS (MÁXIMA PRIORIDADE) ---
-
-      // 1. GESTO Y: Chacoalhar o celular para frente/trás rápido (como se ligasse a lanterna)
-      if (forcaChacoalho > 12.0) {
+      // 1. GESTO Y: Celular deitado na horizontal de costas (Tela para o teto, Z próximo de 9.8)
+      if (z > 7.5) {
         comando = "Y";
       }
-      // 2. GESTO X: Girar o celular (Deitar a tela totalmente de lado / Horizontal)
-      else if (Math.abs(x) > 8.0 && Math.abs(y) < 3.0) {
+      // 2. GESTO X: Celular de ponta-cabeça (Topo para baixo, Y muito negativo)
+      else if (y < -7.5) {
         comando = "X";
       }
-      // 3. GESTO L: Abrir o braço para a ESQUERDA (Celular plano com a tela para cima, Z alto)
-      else if (x > 6.0 && z > 6.0) {
+      // 3. GESTO L: Celular virado 90° na horizontal para a esquerda (X muito positivo)
+      else if (x > 7.5) {
         comando = "L";
       }
-      // 4. GESTO R: Abrir o braço para a DIREITA (Celular plano com a tela para cima, Z alto)
-      else if (x < -6.0 && z > 6.0) {
+      // 4. GESTO R: Celular virado 90° na horizontal para a direita (X muito negativo)
+      else if (x < -7.5) {
         comando = "R";
       }
-      // --- MOVIMENTOS PADRÃO (Inclinando o celular de pé: W, S, A, D) ---
+      // 5. MOVIMENTOS PADRÃO (Inclinando levemente enquanto segura em pé)
       else {
         const LIMIAR = 3.5;
-        if (y < -LIMIAR) comando = "S";      // Inclinar para frente
-        else if (y > LIMIAR) comando = "W"; // Inclinar para trás
-        else if (x < -LIMIAR) comando = "A"; // Inclinar para esquerda
-        else if (x > LIMIAR) comando = "D";  // Inclinar para direita
+        if (y < -LIMIAR) comando = "S";      // Inclinar levemente para frente
+        else if (y > LIMIAR) comando = "W"; // Inclinar levemente para trás
+        else if (x < -LIMIAR) comando = "A"; // Inclinar levemente para esquerda
+        else if (x > LIMIAR) comando = "D";  // Inclinar levemente para direita
       }
 
       document.getElementById('comando').innerText = comando;
@@ -164,7 +153,7 @@
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Pronto! Teste os gestos.");
+        logger("Pronto! Teste as posições estáticas.");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
