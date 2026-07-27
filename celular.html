@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle Robótica - L/R Isolados</title>
+  <title>Controle Robótica - L/R Isolados Definitivo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -104,19 +104,8 @@
       let comando = "PARAR";
       const LIMIAR_LADOS = 3.5;
 
-      // ESTADO 1: TELA VIRADA PARA CIMA (Mão aberta / Celular horizontal)
-      // Ajustado o limite de Z para ser mais tolerante (z > 4.5 e y baixo)
-      if (z > 4.5 && Math.abs(y) < 6.0) {
-        if (x < -LIMIAR_LADOS) {
-          comando = "R";
-        } else if (x > LIMIAR_LADOS) {
-          comando = "L";
-        } else {
-          comando = "PARAR";
-        }
-      }
-      // ESTADO 2: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y negativo)
-      else if (y < -5.0) {
+      // ESTADO 1: CELULAR DE PONTA-CABEÇA / APONTADO PRO CHÃO (Y muito negativo)
+      if (y < -5.0) {
         if (x < -LIMIAR_LADOS) {
           comando = "Y";
         } else if (x > LIMIAR_LADOS) {
@@ -125,13 +114,24 @@
           comando = "S";
         }
       }
-      // ESTADO 3: CELULAR EM PÉ (Em mão normal)
-      else {
+      // ESTADO 2: CELULAR DEITADO / HORIZONTAL (Y próximo de zero, não está em pé)
+      // Se Y estiver neutro (entre -3.5 e +3.5), o celular ESTÁ deitado!
+      else if (Math.abs(y) <= 3.5) {
+        if (x < -LIMIAR_LADOS) {
+          comando = "R"; // Inclinou/Girou para direita deitado
+        } else if (x > LIMIAR_LADOS) {
+          comando = "L"; // Inclinou/Girou para esquerda deitado
+        } else {
+          comando = "PARAR";
+        }
+      }
+      // ESTADO 3: CELULAR EM PÉ (Y fortemente positivo, topo apontado pra cima)
+      else if (y > 3.5) {
         if (x < -LIMIAR_LADOS) {
           comando = "A";
         } else if (x > LIMIAR_LADOS) {
           comando = "D";
-        } else if (y > 2.0) {
+        } else {
           comando = "W";
         }
       }
@@ -161,7 +161,7 @@
 
       if ('DeviceMotionEvent' in window) {
         window.addEventListener('devicemotion', processarAcelerometro, false);
-        logger("Pronto! Estado deitado corrigido.");
+        logger("Pronto! Bloqueio de eixos ajustado.");
       } else {
         logger("Erro: Acelerômetro não suportado.");
       }
